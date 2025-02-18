@@ -1,4 +1,6 @@
 # React + Vite
+Location: Full Stack/r3f_PysicSim/r3f_basic
+Run: npm run dev
 
 Lesson 1: Create Box element and light without using React Components and props
 
