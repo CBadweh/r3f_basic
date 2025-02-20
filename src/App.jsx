@@ -1,10 +1,11 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useRef, useState} from "react"
 import "./App.css";
+import { useControls } from "leva";
 
 // React component and props for the Box
 // props: position, side, color
-const Cube = ({ position, side, color }) => {
+const Cube = ({ position, side, color, aniSpeed }) => {
   // ANIMATION: // with the ref, we can access the cube's properties to animate our object
   const ref = useRef(); 
 
@@ -16,8 +17,8 @@ const Cube = ({ position, side, color }) => {
      delta - time in second sine the last frame
   */
   useFrame((state, delta, frame) => {
-    ref.current.rotation.y += delta * 0.2;                              // Basic rotation animation around y axis
-    ref.current.rotation.z += Math.sin(state.clock.elapsedTime) * 0.1;  // Rotation animation based on sine equation on z axis
+    ref.current.rotation.y += delta * 0.2*aniSpeed;                              // Basic rotation animation around y axis
+    ref.current.rotation.z += Math.sin(state.clock.elapsedTime) * 0.1*aniSpeed;  // Rotation animation based on sine equation on z axis
     console.log(state);
   });
 
@@ -67,27 +68,36 @@ const Sphere = ({ position, args, color }) => {
   );
 };
 
+const Scene = () => {
+ 
+  const { lightColour, animationSpeed } = useControls({
+    lightColour: "white",
+    animationSpeed: {
+      value: 0.5,
+      min: 0,
+      max: 5,
+      step: 0.1,
+    },
+  });
+
+  // useHelper(directionalLightRef, DirectionalLightHelper, 0.5, "white");
+
+  return (
+    <>
+      {/* add lighting */}
+      <directionalLight position={[0, 1, 2]} />
+
+      {/* 1.ADDING Box using React component 2. ANIMATION */}
+      <Cube position={[0, 0, 0]} color={"green"} args={[1,1,1]} aniSpeed = {animationSpeed} />
+    </>
+  );
+};
+
 
 const App = () => {
   return (
     <Canvas>
-      {/* add lighting */}
-      <directionalLight
-        position={[0, 1, 2]}
-      />
-
-      {/* Box Mesh include the geometry and the material */}
-      <mesh position= {[-2,0,0]} >
-        <boxGeometry args={[2, 2, 4]} /> 
-        <meshStandardMaterial color={"orange"} />  
-      </mesh>
-
-      {/* 1.ADDING Box using React component 2. ANIMATION */}
-      <Cube position={[0, 0, 0]} color={"green"} args={[1,1,1]} />
-
-      {/* INTERACTIVE */}
-      <Sphere position={[3, 0, 0]} size = {[1, 30,30]} color={"orange"}/>
-
+      <Scene />
     </Canvas>
   );
 };
