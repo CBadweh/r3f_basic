@@ -1,21 +1,18 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useRef, useState} from "react"
+import { useRef, useState } from "react";
 import "./App.css";
-import { useControls } from "leva";
+import { useControls, button } from "leva";
 
-
-// Box component
-const Cube = ({ position, side, color, aniSpeed }) => {
+const Cube = ({ position, side, color, aniSpeed, isAnimating }) => {
   const ref = useRef(); 
 
-  // Box Animation
-  useFrame((state, delta, frame) => {
-    ref.current.rotation.y += delta * 0.2*aniSpeed;                              // Basic rotation animation around y axis
-    ref.current.rotation.z += Math.sin(state.clock.elapsedTime) * 0.1*aniSpeed;  // Rotation animation based on sine equation on z axis
-    console.log(state);
+  useFrame((state, delta) => {
+    if (isAnimating) {
+      ref.current.rotation.y += delta * 0.2 * aniSpeed;
+      ref.current.rotation.z += Math.sin(state.clock.elapsedTime) * 0.1 * aniSpeed;
+    }
   });
 
-  // Create BOX
   return (
     <mesh position={position} ref={ref}>
       <boxGeometry args={[side, side, side]} />
@@ -24,10 +21,12 @@ const Cube = ({ position, side, color, aniSpeed }) => {
   );
 };
 
-// Scene
 const Scene = () => {
-  // Lava GUI
-  const { lightColour, animationSpeed } = useControls({
+  // State to control animation and force cube remount for reset.
+  const [isAnimating, setIsAnimating] = useState(true);
+  const [cubeKey, setCubeKey] = useState(0);
+
+  const { lightColour, animationSpeed, start, pause, reset } = useControls({
     lightColour: "white",
     animationSpeed: {
       value: 0.5,
@@ -35,17 +34,29 @@ const Scene = () => {
       max: 5,
       step: 0.1,
     },
+    start: button(() => setIsAnimating(true)),
+    pause: button(() => setIsAnimating(false)),
+    reset: button(() => {
+      setIsAnimating(false);
+      // Change key to remount the Cube and reset its state.
+      setCubeKey(Date.now());
+    }),
   });
-  
-  // Add Box component in Scene
+
   return (
     <>
-      <directionalLight position={[0, 1, 2]} /> 
-      <Cube position={[0, 0, 0]} color={"green"} args={[1,1,1]} aniSpeed = {animationSpeed} />
+      <directionalLight color={lightColour} position={[0, 1, 2]} />
+      <Cube 
+        key={cubeKey} 
+        position={[0, 0, 0]} 
+        color="green" 
+        side={1} 
+        aniSpeed={animationSpeed} 
+        isAnimating={isAnimating} 
+      />
     </>
   );
 };
-
 
 const App = () => {
   return (
