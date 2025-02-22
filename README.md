@@ -19,3 +19,8 @@ Lesson 4: Create Interaction with Sphere. 1. Change color and animation speed wh
 Lesson 5: Use Leva GUI for interaction
 
 ![alt text](public/image.png)
+
+
+
+Trouble shooting:
+import { OrbitControls } from "@react-three/drei" may case error due to window antivaris
